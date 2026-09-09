@@ -55,6 +55,7 @@ IC = {
     "layers": '<path d="m12.83 2.18 8.34 4.17a1 1 0 0 1 0 1.79l-8.34 4.17a2 2 0 0 1-1.66 0L2.83 8.14a1 1 0 0 1 0-1.79l8.34-4.17a2 2 0 0 1 1.66 0z"/><path d="m2.83 15.86 8.34 4.17a2 2 0 0 0 1.66 0l8.34-4.17"/><path d="m2.83 11.86 8.34 4.17a2 2 0 0 0 1.66 0l8.34-4.17"/>',
     "spark": '<path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/>',
     "lightbulb": '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/>',
+    "external": '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
     "handshake": '<path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a2 2 0 0 1 0-2.8l.4-.4a2.8 2.8 0 0 1 4 0l4 4"/><path d="m21 3 1 1"/><path d="M3 4h4l4 4"/><path d="m2 12 4.6 4.6a1 1 0 1 0 3-3"/>',
 }
 
@@ -160,18 +161,29 @@ TASKS = [
 
 # ── 데이터: 참여 학과 ───────────────────────────────────────────────
 DEPTS = [
-    ("간호학과", "4년제", "heart"), ("호텔식품제과제빵과", "", "chef"),
-    ("AI기계제어과", "", "cpu"), ("헤어디자인과", "", "scissors"),
-    ("안경광학과", "3년제", "eye"), ("메카트로닉스과", "", "wrench"),
-    ("선박동력기계과", "", "ship"), ("생활문화예술과", "", "spark"),
-    ("보건의료행정과", "", "briefcase"), ("산업안전관리과", "", "shield"),
-    ("스포츠재활운동과", "", "activity"), ("사회복지과", "주간/야간", "users"),
-    ("디저트카페창업과", "", "chef"), ("항공정비과", "3년제", "plane"),
-    ("전문스포츠지도과", "", "activity"), ("보건복지과", "", "heart"),
-    ("글로벌외식조리과", "", "chef"), ("항공기계과", "", "plane"),
-    ("파크골프건강지도과", "신설", "activity"), ("유아교육과", "3년제", "baby"),
-    ("AI푸드창업과", "", "cpu"), ("냉동공조설비과", "", "snow"),
-    ("자율전공학부", "", "compass"),
+    ("간호학과", "4년제", "heart", "https://nurse.dist.ac.kr/"),
+    ("호텔식품제과제빵과", "", "chef", "https://baker.dist.ac.kr/"),
+    ("AI기계제어과", "", "cpu", "https://aim.dist.ac.kr/aim/Main.do"),
+    ("헤어디자인과", "", "scissors", "https://hair.dist.ac.kr/"),
+    ("안경광학과", "3년제", "eye", "https://glass.dist.ac.kr/glass/Main.do"),
+    ("메카트로닉스과", "", "wrench", "https://mct.dist.ac.kr/mct/Main.do"),
+    ("선박동력기계과", "", "ship", "https://sm.dist.ac.kr/sm/Main.do"),
+    ("생활문화예술과", "", "spark", "https://lca.dist.ac.kr/"),
+    ("보건의료행정과", "", "briefcase", "https://sh.dist.ac.kr/"),
+    ("산업안전관리과", "", "shield", "https://insafety.dist.ac.kr/"),
+    ("스포츠재활운동과", "", "activity", "https://rp.dist.ac.kr/rp/CMS/Contents/Contents.do?mCode=MN053"),
+    ("사회복지과", "주간/야간", "users", "https://sc.dist.ac.kr/"),
+    ("디저트카페창업과", "", "chef", "https://dcf.dist.ac.kr/"),
+    ("항공정비과", "3년제", "plane", "https://sky.dist.ac.kr/"),
+    ("전문스포츠지도과", "", "activity", "https://rp.dist.ac.kr/rp/CMS/Contents/Contents.do?mCode=MN065"),
+    ("보건복지과", "", "heart", "https://sc.dist.ac.kr/"),
+    ("글로벌외식조리과", "", "chef", "https://hf.dist.ac.kr/"),
+    ("항공기계과", "", "plane", "https://sky.dist.ac.kr/sky/CMS/Contents/Contents.do?mCode=MN064"),
+    ("파크골프건강지도과", "신설", "activity", "https://pgh.dist.ac.kr/pgh/Main.do"),
+    ("유아교육과", "3년제", "baby", "https://kids.dist.ac.kr/"),
+    ("AI푸드창업과", "", "cpu", "https://wca.dist.ac.kr/wca/Main.do"),
+    ("냉동공조설비과", "", "snow", "https://refrig.dist.ac.kr/"),
+    ("자율전공학부", "", "compass", "https://dis.dist.ac.kr/dis/Main.do"),
 ]
 
 # ── 데이터: 추진 방향 / 인재상 / 로드맵 / 협의체 ───────────────────
@@ -511,16 +523,19 @@ def page_projects():
 # ── 페이지: 참여학과 ───────────────────────────────────────────────
 def page_departments():
     cards = "".join(f"""
-      <li class="dept rv"><span class="dept__ic">{icon(ic)}</span>
-        <span><span class="dept__n">{name}</span>{'<span class="dept__m">%s</span>' % meta if meta else ''}</span>
-      </li>""" for name, meta, ic in DEPTS)
+      <li class="rv"><a class="dept" href="{url}" target="_blank" rel="noopener noreferrer">
+        <span class="dept__ic">{icon(ic)}</span>
+        <span class="dept__body"><span class="dept__n">{name}</span>{'<span class="dept__m">%s</span>' % meta if meta else ''}</span>
+        <span class="dept__go" aria-hidden="true">{icon('external')}</span>
+        <span class="sr-only">학과 홈페이지 (새 창에서 열림)</span>
+      </a></li>""" for name, meta, ic, url in DEPTS)
 
     return head("참여학과", "2026학년도 경남 ANCHOR 사업에 참여하는 동원과학기술대학교 23개 학과를 소개합니다.", "departments.html") + \
         phead("참여학과", "26 ANCHOR 사업 학과소개",
               "항공·기계·바이오·보건복지·조리·창업까지, 지역 산업 수요에 맞춘 23개 학과가 함께합니다.") + f"""
 <section class="section">
   <div class="wrap">
-    {shead("DEPARTMENTS", "참여 학과 23개", "학과별 모집 요강과 교육과정은 동원과학기술대학교 홈페이지에서 확인하실 수 있습니다.")}
+    {shead("DEPARTMENTS", "참여 학과 23개", "학과 이름을 누르면 해당 학과 홈페이지가 새 창으로 열립니다. 모집 요강과 교육과정을 바로 확인하실 수 있습니다.")}
     <ul class="grid grid--4">{cards}</ul>
   </div>
 </section>
