@@ -531,7 +531,7 @@ def page_departments():
       </a></li>""" for name, meta, ic, url in DEPTS)
 
     return head("참여학과", "2026학년도 경남 ANCHOR 사업에 참여하는 동원과학기술대학교 23개 학과를 소개합니다.", "departments.html") + \
-        phead("참여학과", "26 ANCHOR 사업 학과소개",
+        phead("참여학과", "ANCHOR 사업 참여 학과 소개",
               "항공·기계·바이오·보건복지·조리·창업까지, 지역 산업 수요에 맞춘 23개 학과가 함께합니다.") + f"""
 <section class="section">
   <div class="wrap">
