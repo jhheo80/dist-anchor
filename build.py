@@ -14,6 +14,14 @@ ADDR = "50578 경상남도 양산시 명곡로 321(명곡동) 동원과학기술
 TEL = ["055-370-8335", "055-370-8530"]
 FAX = "055-370-8347"
 
+# ── 운영 프로그램 게시판이 읽어올 구글 시트 ────────────────────────
+#  SHEET_ID  : 시트 주소 .../spreadsheets/d/[여기]/edit 의 가운데 문자열
+#  SHEET_TAB : 아래쪽 탭 이름 (기본값 그대로 쓰면 첫 번째 탭)
+# 운영 프로그램 게시판을 켜려면 아래를 True 로 바꾸고 python build.py 다시 실행
+PROGRAMS_ENABLED = False
+SHEET_ID = "1boslZR_F6LBKddTLS2YDQ4RtsSssfWmtWggkAHhSp_Q"
+SHEET_TAB = ""
+
 NAV = [
     ("index.html", "홈"),
     ("about.html", "사업소개"),
@@ -21,6 +29,8 @@ NAV = [
     ("departments.html", "참여학과"),
     ("contact.html", "문의·오시는 길"),
 ]
+if PROGRAMS_ENABLED:
+    NAV.insert(4, ("programs.html", "운영프로그램"))
 
 # ── 아이콘 (Lucide 계열, 24x24 stroke) ─────────────────────────────
 IC = {
@@ -194,6 +204,20 @@ DIRECTIONS = [
     ("graduation", "ANCHOR 체계를 통한 생애 주기 맞춤 지역인재 양성 프로세스 운영"),
 ]
 
+DIRECTION_TITLES = ["지역 수요 기반 대학교육", "대학·지자체·기업 거버넌스", "기업 현장 OJT 교육", "생애주기 맞춤 인재양성"]
+
+# 홈 히어로의 해도(海圖) 등심선 — 안쪽부터 바깥쪽 순서
+CHART_RINGS = [
+    "M400 330c38 0 70 26 70 68s-30 74-72 74-68-30-68-70 32-72 70-72z",
+    "M402 270c76 0 128 50 130 124 2 80-56 138-132 138-74 0-130-54-130-132 0-76 56-130 132-130z",
+    "M396 208c112 2 196 76 196 190 0 116-84 196-196 196-110 0-192-82-192-194 0-112 84-194 192-192z",
+    "M404 146c150 0 254 104 252 250-2 152-110 260-256 258-146-2-252-110-250-256 2-148 106-252 254-252z",
+    "M398 84c186 2 318 132 316 314-2 186-134 318-318 316-182-2-312-134-310-318 2-180 132-314 312-312z",
+    "M402 24c222 0 380 160 376 376-4 220-160 378-380 376-216-2-374-160-372-378 2-214 160-374 376-374z",
+    "M400-36c258 0 440 186 436 436-4 254-186 440-440 436-250-4-436-188-432-440 4-248 188-432 436-432z",
+    "M396-96c294 2 500 214 496 496-4 290-212 498-500 496-284-2-494-214-490-500 4-284 212-494 494-492z",
+]
+
 TALENTS = [
     "현장실무 전문성과 창의적 사고를 갖추고 지역 혁신을 창출하는 인재",
     "DX 리터러시와 ICT 활용 능력을 갖춘 인재",
@@ -221,7 +245,7 @@ COUNCIL = [
 ]
 
 STATS = [
-    ("14", "선정 단위·세부과제"), ("4", "대 추진 프로젝트"),
+    ("14", "세부과제"), ("4", "대 추진 프로젝트"),
     ("23", "개 참여 학과"), ("5", "개년 추진 로드맵"),
 ]
 
@@ -241,7 +265,7 @@ def head(title, desc, page):
 <meta property="og:title" content="{_h.escape(title)} | {SITE}">
 <meta property="og:description" content="{_h.escape(desc)}">
 <meta property="og:locale" content="ko_KR">
-<meta name="theme-color" content="#2C5E13">
+<meta name="theme-color" content="#0A2A66">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -263,10 +287,10 @@ def header(page):
     <a class="brand" href="index.html">
       <span class="brand__mark" aria-hidden="true">
         <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
-          <rect width="40" height="40" rx="11" fill="#2C5E13"/>
-          <path d="M20 9v22M20 31c-4.5 0-8-3.2-8-7M20 31c4.5 0 8-3.2 8-7" stroke="#AEEB5D" stroke-width="2.6" stroke-linecap="round"/>
-          <circle cx="20" cy="13" r="3.4" stroke="#AEEB5D" stroke-width="2.6"/>
-          <path d="M14 17h12" stroke="#AEEB5D" stroke-width="2.6" stroke-linecap="round"/>
+          <rect width="40" height="40" rx="11" fill="#1D5BD8"/>
+          <path d="M20 9v22M20 31c-4.5 0-8-3.2-8-7M20 31c4.5 0 8-3.2 8-7" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="20" cy="13" r="3.4" stroke="#fff" stroke-width="2.6"/>
+          <path d="M14 17h12" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
         </svg>
       </span>
       <span class="brand__txt">
@@ -319,83 +343,72 @@ def phead(crumb, title, desc):
 
 def shead(kicker, title, desc=""):
     d = "<p>%s</p>" % desc if desc else ""
-    return f'<div class="shead rv"><span class="shead__kicker">{kicker}</span><h2>{title}</h2>{d}</div>'
+    return f'<div class="shead rv"><h2>{title}</h2>{d}</div>'
 
 
 # ── 페이지: 홈 ────────────────────────────────────────────────────
 def page_index():
-    stats = "".join('<div class="hero__stat"><b>%s</b><span>%s</span></div>' % s for s in STATS)
-    pcards = "".join(f"""
-      <a class="card card--hover pcard {p['cls']} rv" href="projects.html#{p['cls']}">
-        <span class="icon-badge">{icon(p['icon'])}</span>
-        <span class="pcard__no">{p['no']}</span>
+    facts = "".join('<div><dt>%s</dt><dd>%s</dd></div>' % s_ for s_ in STATS)
+    dirs = "".join(f"""
+      <li class="rv"><span class="dir__ic">{icon(ic)}</span>
+        <div><h3>{t}</h3><p>{txt}</p></div></li>""" for ic, t, txt in
+        [(ic, h_, txt) for (ic, txt), h_ in zip(DIRECTIONS, DIRECTION_TITLES)])
+    tiles = "".join(f"""
+      <a class="tile rv {p['cls']}" href="projects.html#{p['cls']}">
+        <span class="tile__name">{p['no'].replace('PROJECT ', '프로젝트 ')}</span>
         <h3>{p['title']}</h3>
         <p>{p['desc']}</p>
+        <span class="tile__more">세부과제 보기</span>
+        {icon(p['icon'], 'tile__glyph')}
       </a>""" for p in PROJECTS)
-    dirs = "".join(f"""
-      <div class="card rv">
-        <span class="icon-badge">{icon(ic)}</span>
-        <p style="color:var(--ink);font-weight:600;font-size:.98rem">{txt}</p>
-      </div>""" for ic, txt in DIRECTIONS)
-    road = "".join('<li class="tl__item rv"><span class="tl__yr">%s</span><p>%s</p></li>' % r for r in ROADMAP)
+    road = "".join('<li class="rv"><b>%s</b><p>%s</p></li>' % r for r in ROADMAP)
+    rings = "".join('<path d="%s"/>' % d for d in CHART_RINGS)
 
     return head("홈", f"{SITE} — {SLOGAN}. 지역맞춤형 혁신과 발전을 선도하는 유니컬라이제이션 인재양성.", "index.html") + f"""
 <section class="hero">
-  <div class="hero__deco" aria-hidden="true">
-    <svg width="100%" height="100%" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMax slice">
-      <defs>
-        <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#AEEB5D" stop-opacity=".30"/>
-          <stop offset="100%" stop-color="#AEEB5D" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d="M0 470c90-16 140 12 210-6s110-52 190-40 130 62 210 46 140-64 220-52 130 58 190 44 180-40 180-40V620H0z" fill="url(#g1)"/>
-      <g fill="none" stroke="#AEEB5D" stroke-opacity=".22" stroke-width="1.4">
-        <circle cx="1010" cy="150" r="120"/><circle cx="1010" cy="150" r="76"/><circle cx="1010" cy="150" r="34"/>
-        <path d="M1010 30v240M890 150h240"/>
-      </g>
-    </svg>
-  </div>
+  <svg class="hero__chart" viewBox="0 0 800 800" aria-hidden="true">{rings}<circle class="hero__pin" cx="400" cy="400" r="9"/></svg>
   <div class="wrap hero__in">
-    <p class="hero__eyebrow">{icon('spark', 'ic')} 경상남도 지역혁신중심 대학지원체계 · 14개 과제 선정</p>
-    <h1>지역과 함께,<br><span class="accent">미래를 혁신하다</span></h1>
+    <p class="hero__where">경상남도 지역혁신중심 대학지원체계, 14개 과제 선정</p>
+    <h1>지역과 함께,<br>미래를 혁신하다</h1>
     <p class="hero__lead">동원과학기술대학교 경남앵커사업(ANCHOR)은 지역맞춤형 혁신과 발전을 선도하는
-      <strong>유니컬라이제이션(Unification&nbsp;+&nbsp;Localization)</strong> 인재를 양성합니다.</p>
+      <b>유니컬라이제이션(Unification&nbsp;+&nbsp;Localization)</b> 인재를 양성합니다.</p>
     <div class="hero__cta">
-      <a class="btn btn--primary" href="projects.html">14개 세부과제 보기</a>
+      <a class="btn btn--light" href="projects.html">14개 세부과제 보기</a>
       <a class="btn btn--ghost" href="about.html">사업 소개</a>
     </div>
-    <div class="hero__stats">{stats}</div>
-  </div>
-</section>
-
-<section class="section section--alt">
-  <div class="wrap">
-    {shead("PROMOTION DIRECTION", "네 갈래의 추진 계획", "대학혁신 · 거버넌스 · 현장교육 · 생애주기 인재양성으로 지역과 대학이 함께 성장합니다.")}
-    <div class="grid grid--4">{dirs}</div>
+    <dl class="facts">{facts}</dl>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    {shead("PROJECTS", "4대 프로젝트", "산업 혁신 인재부터 정주·창업 밸류 창출까지, 지역이 필요로 하는 네 가지 축으로 사업을 추진합니다.")}
-    <div class="grid grid--2">{pcards}</div>
-  </div>
-</section>
-
-<section class="section section--deep">
-  <div class="wrap">
-    {shead("ROADMAP", "ANCHOR 사업 5개년 추진 방향")}
-    <ul class="tl">{road}</ul>
+    {shead("", "네 갈래의 추진 계획", "대학혁신, 거버넌스, 현장교육, 생애주기 인재양성으로 지역과 대학이 함께 성장합니다.")}
+    <ul class="dir">{dirs}</ul>
   </div>
 </section>
 
 <section class="section section--alt">
   <div class="wrap">
+    {shead("", "4대 프로젝트", "산업 혁신 인재부터 정주·창업 밸류 창출까지, 지역이 필요로 하는 네 가지 축으로 사업을 추진합니다.")}
+    <div class="tiles">{tiles}</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    {shead("", "5개년 추진 방향", "체계를 세우는 1차년부터 지역사회 발전을 이끄는 5차년까지 단계적으로 나아갑니다.")}
+    <ol class="road">{road}</ol>
+  </div>
+</section>
+
+<section class="section section--flush">
+  <div class="wrap">
     <div class="cta rv">
-      <h2>함께 만드는 지역의 미래</h2>
-      <p>참여 학과, 프로그램 참여, 산학협력 문의를 환영합니다. 동원앵커사업단이 안내해 드립니다.</p>
-      <a class="btn btn--solid" href="contact.html">문의하기</a>
+      <div>
+        <h2>함께 만드는 지역의 미래</h2>
+        <p>참여 학과, 프로그램 참여, 산학협력 문의를 환영합니다. 동원앵커사업단이 안내해 드립니다.</p>
+      </div>
+      <a class="btn btn--light" href="contact.html">문의하기</a>
     </div>
   </div>
 </section>
@@ -408,7 +421,7 @@ def page_about():
       <div class="card rv"><span class="icon-badge">{icon(ic)}</span>
       <p style="color:var(--ink);font-weight:600;font-size:.98rem">{txt}</p></div>""" for ic, txt in DIRECTIONS)
     talents = "".join("<li>%s</li>" % t for t in TALENTS)
-    road = "".join('<li class="tl__item rv"><span class="tl__yr">%s</span><p>%s</p></li>' % r for r in ROADMAP)
+    road = "".join('<li class="rv"><b>%s</b><p>%s</p></li>' % r for r in ROADMAP)
     council = "".join(f"""
       <div class="taggroup rv"><h3>{name}</h3>
         <ul class="tags">{''.join('<li class="tag">%s</li>' % o for o in orgs)}</ul>
@@ -445,10 +458,10 @@ def page_about():
   </div>
 </section>
 
-<section class="section section--deep">
+<section class="section">
   <div class="wrap">
-    {shead("ROADMAP", "5개년 추진 방향")}
-    <ul class="tl">{road}</ul>
+    {shead("ROADMAP", "5개년 추진 방향", "체계를 세우는 1차년부터 지역사회 발전을 이끄는 5차년까지 단계적으로 나아갑니다.")}
+    <ol class="road">{road}</ol>
   </div>
 </section>
 
@@ -472,7 +485,7 @@ def page_projects():
     overview = "".join(f"""
       <div class="card pcard {p['cls']} rv" id="{p['cls']}">
         <span class="icon-badge">{icon(p['icon'])}</span>
-        <span class="pcard__no">{p['no']}</span>
+        <span class="pcard__no">{p['no'].replace('PROJECT ', '프로젝트 ')}</span>
         <h3>{p['title']}</h3>
         <p>{p['desc']}</p>
         <ul class="tags" style="margin-top:14px">{''.join('<li class="tag">%s</li>' % u for u in p['units'])}</ul>
@@ -602,6 +615,43 @@ def page_contact():
 """ + footer()
 
 
+# ── 페이지: 운영 프로그램 ──────────────────────────────────────────
+def page_programs():
+    return head("운영 프로그램",
+                "경남 ANCHOR 사업이 운영하는 교육·창업·산학협력 프로그램 소식을 사진과 함께 전합니다.",
+                "programs.html") + \
+        phead("운영 프로그램", "프로그램 소식",
+              "사업단이 운영 중인 교육과 행사, 현장 이야기를 사진과 함께 전해 드립니다.") + f"""
+<section class="section">
+  <div class="wrap">
+    {shead("PROGRAMS", "프로그램 갤러리", "카드를 누르면 자세한 내용을 볼 수 있습니다.")}
+    <div class="chips" id="gal-chips" role="group" aria-label="분류별 보기"></div>
+    <p id="gal-live" role="status" aria-live="polite" class="sr-only"></p>
+    <div id="gal" class="gal"></div>
+  </div>
+</section>
+
+<div class="pgm" id="pgm" role="dialog" aria-modal="true" aria-labelledby="pgm-t" hidden>
+  <div class="pgm__bd"></div>
+  <div class="pgm__box">
+    <button class="pgm__x" id="pgm-x" type="button" aria-label="닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <img class="pgm__img" id="pgm-img" src="" alt="">
+    <div class="pgm__in">
+      <div class="pgm__meta" id="pgm-meta"></div>
+      <h2 id="pgm-t"></h2>
+      <p id="pgm-s"></p>
+      <a class="btn btn--solid" id="pgm-link" href="#" target="_blank" rel="noopener noreferrer" hidden>자세히 보기</a>
+    </div>
+  </div>
+</div>
+
+<script>window.PROGRAM_SHEET = {{ id: "{SHEET_ID}", sheet: "{SHEET_TAB}" }};</script>
+<script src="assets/js/programs.js"></script>
+""" + footer()
+
+
 PAGES = {
     "index.html": page_index,
     "about.html": page_about,
@@ -610,14 +660,18 @@ PAGES = {
     "contact.html": page_contact,
 }
 
+if PROGRAMS_ENABLED:
+    PAGES["programs.html"] = page_programs
+
+
 if __name__ == "__main__":
     root = os.path.dirname(os.path.abspath(__file__))
     os.makedirs(os.path.join(root, "assets", "img"), exist_ok=True)
     fav = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-<rect width="40" height="40" rx="9" fill="#2C5E13"/>
-<path d="M20 9v22M20 31c-4.5 0-8-3.2-8-7M20 31c4.5 0 8-3.2 8-7" stroke="#AEEB5D" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-<circle cx="20" cy="13" r="3.4" stroke="#AEEB5D" stroke-width="2.8" fill="none"/>
-<path d="M14 17h12" stroke="#AEEB5D" stroke-width="2.8" stroke-linecap="round"/>
+<rect width="40" height="40" rx="9" fill="#1D5BD8"/>
+<path d="M20 9v22M20 31c-4.5 0-8-3.2-8-7M20 31c4.5 0 8-3.2 8-7" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+<circle cx="20" cy="13" r="3.4" stroke="#FFFFFF" stroke-width="2.8" fill="none"/>
+<path d="M14 17h12" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/>
 </svg>"""
     with open(os.path.join(root, "assets", "img", "favicon.svg"), "w", encoding="utf-8") as f:
         f.write(fav)
