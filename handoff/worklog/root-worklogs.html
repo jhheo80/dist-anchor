@@ -1,0 +1,78 @@
+<!-- ===== 근무 신청(연장·휴일) 화면 조각 — 운영 루트 화면(src/root.html)에 붙여 넣기 =====
+  ① 탭 버튼: <nav> 안 "예산 사용액" 버튼 뒤에
+  ② <section id="tab-worklog">: 다른 <section id="tab-..."> 들 옆에
+  ③ <dialog> 두 개: 기존 <dialog id="dlg"> 옆에
+  ④ <style>: 기존 <style> 끝에 (색은 운영 CSS 변수 --line, --sub, --warn, --ok, --accent-bg 를 그대로 씀)
+-->
+
+<!-- ① 탭 버튼 (admin-only = 운영 화면에서 canWrite일 때만 보임 → 로그인한 관리자·담당자) -->
+<button class="tab admin-only hide" data-tab="worklog">근무 신청</button>
+
+<!-- ② 탭 내용 -->
+<section id="tab-worklog" class="hide">
+  <div class="card">
+    <h2>연장·휴일 근무 신청</h2>
+    <div class="wl-bar">
+      <button type="button" class="primary" id="wlNew">+ 사전신청서 작성</button>
+      <button type="button" class="primary" id="wlNewReport">+ 결과보고서 작성</button>
+      <label class="wl-filter"><input type="checkbox" id="wlOpenOnly"> 결과보고서 미제출만</label>
+      <button type="button" id="wlCsv">엑셀(CSV)</button>
+    </div>
+    <p class="wl-help">사전신청서를 낸 뒤 근무를 마치면 <b>결과보고서 작성</b>을 눌러 신청서를 고르세요. 신청 내용이 그대로 채워지고, 결과보고서를 낸 신청서는 고르는 목록에서 빠집니다.</p>
+    <table id="tWorklog"></table>
+  </div>
+</section>
+
+<!-- ③-1 사전신청서 / 결과보고서 입력 창 (같은 창을 모드만 바꿔 씀) -->
+<dialog id="wlDlg"><form id="fWl" method="dialog">
+  <h3 id="wlTitle">근무 사전신청서</h3>
+  <div class="grid">
+    <label>구분<select id="w_kind"><option>연장</option><option>휴일</option></select></label>
+    <label>신청자<input id="w_name" disabled></label>
+    <label>소속<input id="w_dept" maxlength="100" placeholder="동원앵커사업단"></label>
+    <label>직위<input id="w_position" maxlength="50" placeholder="전담직원"></label>
+    <label>예정 근무일<input type="date" id="w_pdate" required></label>
+    <label>예정 시간<span class="wl-time"><input type="time" id="w_pstart" required> ~ <input type="time" id="w_pend" required></span></label>
+    <label>근무시간(휴게 제외)<input type="number" id="w_phours" min="0.5" max="24" step="0.5" required></label>
+    <label class="full">근무계획<textarea id="w_ptext" rows="9" maxlength="5000" required placeholder="∙ 근무내용&#10; 1. 경남 앵커사업 평생직업 교육과정 운영&#10;  1) ○○ 과정  ▸시간: 9:00~13:00 / ▸장소: / ▸계획인원: 명&#10; ※ 상기 교육과정 운영&#10; ※ 수시 출석 확인"></textarea></label>
+    <label>신청일<input type="date" id="w_adate"></label>
+  </div>
+  <div id="wlRep" class="grid hide">
+    <label>실제 근무일<input type="date" id="w_rdate"></label>
+    <label>실제 시간<span class="wl-time"><input type="time" id="w_rstart"> ~ <input type="time" id="w_rend"></span></label>
+    <label>실근무시간(휴게 제외)<input type="number" id="w_rhours" min="0.5" max="24" step="0.5"></label>
+    <label class="full">근무내용(결과)<textarea id="w_rtext" rows="11" maxlength="5000"></textarea></label>
+    <label class="full">붙임<input id="w_attach" maxlength="500" placeholder="과정개설 기안자료 사본 1부."></label>
+    <label>작성일<input type="date" id="w_repdate"></label>
+  </div>
+  <p class="err" id="w_err" role="alert"></p>
+  <div class="btns">
+    <button type="button" class="danger hide" id="w_del">삭제</button>
+    <button type="button" id="w_close">닫기</button>
+    <button class="primary" id="w_save">저장</button>
+  </div>
+</form></dialog>
+
+<!-- ③-2 결과보고서 작성 → 신청서 고르기 -->
+<dialog id="wlPick"><form method="dialog">
+  <h3>결과보고서를 쓸 신청서 고르기</h3>
+  <ul id="wlPickList" class="wl-pick"></ul>
+  <div class="btns"><button>닫기</button></div>
+</form></dialog>
+
+<!-- ④ 스타일 -->
+<style>
+.wl-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.wl-filter{display:flex;gap:6px;align-items:center;margin-left:auto}
+.wl-help{color:var(--sub);font-size:14px;margin:0 0 12px}
+.wl-time{display:flex;gap:6px;align-items:center}
+.wl-time input{flex:1;min-width:0}
+#fWl textarea{width:100%;font:inherit;line-height:1.6;white-space:pre-wrap}
+#wlRep{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.wl-open{color:var(--warn);font-weight:700}
+.wl-done{color:var(--ok)}
+.wl-hours{width:70px}
+.wl-pick{list-style:none;padding:0;margin:0 0 12px;max-height:60vh;overflow:auto}
+.wl-pick button{width:100%;text-align:left;padding:12px;margin-bottom:6px;min-height:44px}
+.wl-pick small{display:block;color:var(--sub)}
+</style>
